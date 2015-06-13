@@ -25,4 +25,10 @@ cp -Rf /tmp/src/* ./
 
 echo "---> Building application from source"
 
-mvn install -P openshift -Dplatform-target=openshift -DskipTests -Dmaven.repo.local=./m2-repo
+export MAVEN_OPTS="-P openshift -Dplatform-target=openshift -DskipTests -Dmaven.repo.local=./m2-repo"
+
+if [[ -e ./build ]]; then
+	./build
+else
+	mvn install
+fi 
