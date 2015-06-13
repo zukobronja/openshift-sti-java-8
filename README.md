@@ -16,6 +16,10 @@ Move to your application directory and run:
 
 	sti build --force-pull=false --incremental=true . openshift-sti-java-8 <application_name>
 
+Aften building, start your application with:
+
+	docker run -p 8080:8080 <application_name>
+
 # Testing
 
 Sorry, not implemented yet. The test directory (and Make command) is just something that came with the STI bootstrap.
