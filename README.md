@@ -21,9 +21,6 @@ If your application just needs a plain mvn build you don't really need to do any
 - Variable platform-target set to "openshift"
 - Maven repo redirected to ```./m2-repo``` . Lets us re-use when re-building.
 
-If you need to do something different, create a file called build and set it to be executable. It will be called in stead of ```mvn install```. 
-
-
 ## Build image
 
 Move to your application directory and run:
