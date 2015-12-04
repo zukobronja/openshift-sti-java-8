@@ -10,10 +10,9 @@ RUN echo "timeout=120" >> /etc/yum.conf
 RUN (cd /etc/yum.repos.d && grep -rl https | xargs sed -i 's/https\:/http\:/g')
 RUN yum install -y java-1.8.0-openjdk-headless maven && yum clean all -y
 
-# TODO (optional): Copy the builder files into /opt/openshift
-# COPY ./<builder_folder>/ /opt/openshift/
-
 COPY ./.sti/bin/ /usr/libexec/s2i
 RUN chmod a+x /usr/libexec/s2i/*
+
+USER 1001
 
 EXPOSE 8080
