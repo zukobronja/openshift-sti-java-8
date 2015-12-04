@@ -6,7 +6,7 @@ To use it, install STI: https://github.com/openshift/source-to-image
 
 Sample invocation:
 
-sti build git://<source code> openshift/base-centos7 <application image>
+s2i build git://<source code> openshift/base-centos7 <application image>
 
 You can then run the resulting image via:
 docker run <application image>

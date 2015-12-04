@@ -24,6 +24,5 @@ echo "---> Installing application source to $(pwd)"
 cp -Rf /tmp/src/* ./
 
 echo "---> Building application from source"
-
 mvn install -P openshift -Dplatform-target=openshift -DskipTests -Dmaven.repo.local=./m2-repo
  

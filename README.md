@@ -25,7 +25,7 @@ If your application just needs a plain mvn build you don't really need to do any
 
 Move to your application directory and run:
 
-	sti build --force-pull=false --incremental=true . openshift-sti-java-8 <application_name>
+	s2i build --force-pull=false --incremental=true . openshift-sti-java-8 <application_name>
 
 ## Start image
 

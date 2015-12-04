@@ -13,7 +13,7 @@ RUN yum install -y java-1.8.0-openjdk-headless maven && yum clean all -y
 # TODO (optional): Copy the builder files into /opt/openshift
 # COPY ./<builder_folder>/ /opt/openshift/
 
-COPY ./.sti/bin/ /usr/local/sti/
-RUN chmod a+x /usr/local/sti/*
+COPY ./.sti/bin/ /usr/libexec/s2i
+RUN chmod a+x /usr/libexec/s2i/*
 
 EXPOSE 8080
