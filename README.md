@@ -6,11 +6,18 @@ Your application uses Java 8 and builds with maven.
 
 	make
 
-# Using on applicatoin
+# Using in application
+
+## Publish image
+
+To use this in OpenShift it needs to be available in a Docker Repository. To do this perform (on the machine you ran make on) something along the lines of:
+    
+    docker tag openshift-sti-java-8:latest <myrepo_with_port>/openshift-sti-java-8
+    docker push <myrepo_with_port>/openshift-sti-java-8
 
 ## Create start command
 
-Create whatever start command you need and place it in your root directory. It is just called ```start```.
+Create whatever start command you need and place it in your root directory. It is just called ```bin/start```.
 
 ## Prepare for build
 
@@ -21,7 +28,20 @@ If your application just needs a plain mvn build you don't really need to do any
 - Variable platform-target set to "openshift"
 - Maven repo redirected to ```./m2-repo``` . Lets us re-use when re-building.
 
-## Build image
+## Bootstrap your application on OpenShift
+
+    oc new-app <myrepo_with_port>/openshift-sti-java-8:latest --strategy=source .
+
+This will create all the necessary resources on OpenShift. To see the generated setup before executing with ```oc create -f app-template.yaml``` perform:
+
+        oc new-app <myrepo_with_port>/openshift-sti-java-8:latest --strategy=source --output=yaml . > app-template.yaml
+
+
+# Testing...
+
+There is a test directory here, but it's not updated right now...
+
+## Build image to yes app locally
 
 Move to your application directory and run:
 
@@ -35,4 +55,4 @@ Aften building, start your application with:
 
 # Testing
 
-Sorry, not implemented yet. The test directory (and Make command) is just something that came with the STI bootstrap.
+Sorry, not implemented yet. The test directory (and Make command) is just something that came with the s2i bootstrap.
