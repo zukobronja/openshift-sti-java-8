@@ -1,28 +1,36 @@
 
 #!/bin/bash
 #
-# The 'run' performs a simple test that verifies that STI image.
-# The main focus here is to excersise the STI scripts.
+# The 'run' performs a simple test that verifies the S2I image.
+# The main focus here is to exercise the S2I scripts.
 #
-# For more informations see the documentation:
+# For more information see the documentation:
 #	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
 #
 # IMAGE_NAME specifies a name of the candidate image used for testing.
 # The image has to be available before this script is executed.
 #
-IMAGE_NAME=${IMAGE_NAME-openshift/base-centos7-candidate}
+IMAGE_NAME=${IMAGE_NAME-new-s2i-candidate}
 
-test_dir="$(readlink -zf $(dirname "${BASH_SOURCE[0]}"))"
-image_dir=$(readlink -zf ${test_dir}/..)
-scripts_url="file://${image_dir}/s2i/bin"
-cid_file=$(mktemp -u --suffix=.cid)
+# Determining system utility executables (darwin compatibility check)
+READLINK_EXEC="readlink"
+MKTEMP_EXEC="mktemp"
+if (echo "$OSTYPE" | egrep -qs 'darwin'); then
+  ! type -a "greadlink" &>"/dev/null" || READLINK_EXEC="greadlink"
+  ! type -a "gmktemp" &>"/dev/null" || MKTEMP_EXEC="gmktemp"
+fi
 
-# Since we built the candidate image locally, we don't want STI attempt to pull
+test_dir="$($READLINK_EXEC -zf $(dirname "${BASH_SOURCE[0]}"))"
+image_dir=$($READLINK_EXEC -zf ${test_dir}/..)
+scripts_url="file://${image_dir}/.s2i/bin"
+cid_file=$($MKTEMP_EXEC -u --suffix=.cid)
+
+# Since we built the candidate image locally, we don't want S2I to attempt to pull
 # it from Docker hub
-sti_args="--force-pull=false -s ${scripts_url}"
+s2i_args="--force-pull=false -s ${scripts_url} --loglevel=2"
 
-# TODO: This should be part of the image metadata
-test_port=8000
+# Port the image exposes service to be tested
+test_port=8080
 
 image_exists() {
   docker inspect $1 &>/dev/null
@@ -33,11 +41,11 @@ container_exists() {
 }
 
 container_ip() {
-  docker inspect --format="\{\{ .NetworkSettings.IPAddress \}\}" $(cat $cid_file)
+  docker inspect --format="{{ .NetworkSettings.IPAddress }}" $(cat $cid_file)
 }
 
-run_sti_build() {
-  sti build ${sti_args} file://${test_dir}/test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+run_s2i_build() {
+  s2i build --incremental=true ${s2i_args} file://${test_dir}/test-app ${IMAGE_NAME} ${IMAGE_NAME}-testapp
 }
 
 prepare() {
@@ -45,14 +53,13 @@ prepare() {
     echo "ERROR: The image ${IMAGE_NAME} must exist before this script is executed."
     exit 1
   fi
-  # TODO: STI build require the application is a valid 'GIT' repository, we
-  # should remove this restriction in the future when a file:// is used.
+  # s2i build requires the application is a valid 'GIT' repository
   pushd ${test_dir}/test-app >/dev/null
   git init
   git config user.email "build@localhost" && git config user.name "builder"
   git add -A && git commit -m "Sample commit"
   popd >/dev/null
-  run_sti_build
+  run_s2i_build
 }
 
 run_test_application() {
@@ -68,13 +75,12 @@ cleanup() {
   if image_exists ${IMAGE_NAME}-testapp; then
     docker rmi ${IMAGE_NAME}-testapp
   fi
-  rm -rf ${test_dir}/test-app/.git
 }
 
 check_result() {
   local result="$1"
   if [[ "$result" != "0" ]]; then
-    echo "STI image '${IMAGE_NAME}' test FAILED (exit code: ${result})"
+    echo "S2I image '${IMAGE_NAME}' test FAILED (exit code: ${result})"
     cleanup
     exit $result
   fi
@@ -87,15 +93,15 @@ wait_for_cid() {
   local result=1
   while [ $attempt -le $max_attempts ]; do
     [ -f $cid_file ] && break
-    echo "Waiting for container start..."
+    echo "Waiting for container to start..."
     attempt=$(( $attempt + 1 ))
     sleep $sleep_time
   done
 }
 
 test_usage() {
-  echo "Testing 'sti usage'..."
-  sti usage ${sti_args} ${IMAGE_NAME} &>/dev/null
+  echo "Testing 's2i usage'..."
+  s2i usage ${s2i_args} ${IMAGE_NAME} &>/dev/null
 }
 
 test_connection() {
@@ -106,6 +112,11 @@ test_connection() {
   local result=1
   while [ $attempt -le $max_attempts ]; do
     echo "Sending GET request to http://$(container_ip):${test_port}/"
+    if (echo "$OSTYPE" | egrep -qs 'darwin'); then
+      echo "Warning for OSX users: if you can't access the container's IP ${container_ip} directly (because you use boot2docker for example)"
+      echo "you should run the curl command in a container, for example using:"
+      echo "docker run --rm -it sequenceiq/alpine-curl curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/"
+    fi
     response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/)
     status=$?
     if [ $status -eq 0 ]; then
@@ -123,7 +134,7 @@ test_connection() {
 # Build the application image twice to ensure the 'save-artifacts' and
 # 'restore-artifacts' scripts are working properly
 prepare
-run_sti_build
+run_s2i_build
 check_result $?
 
 # Verify the 'usage' script is working properly
@@ -133,7 +144,7 @@ check_result $?
 # Verify that the HTTP connection can be established to test application container
 run_test_application &
 
-# Wait for the container to write it's CID file
+# Wait for the container to write its CID file
 wait_for_cid
 
 test_connection
