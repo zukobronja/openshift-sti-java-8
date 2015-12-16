@@ -1,28 +1,35 @@
 #!/bin/bash -e
 #
-# STI assemble script for the 'openshift/base-centos7' image.
-# The 'assemble' script build your application source.
+# S2I assemble script for the 'new-s2i' image.
+# The 'assemble' script builds your application source ready to run.
 #
-# For more informations see the documentation:
+# For more information refer to the documentation:
 #	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
 #
 
 if [ "$1" = "-h" ]; then
-	# If the 'openshift/base-centos7' assemble script is executed with '-h' flag,
+	# If the 'new-s2i' assemble script is executed with '-h' flag,
 	# print the usage.
-	exec /usr/local/sti/usage
+	exec /usr/local/s2i/usage
 fi
 
-# Restore artifacts from the previous build (if exists).
-#
-if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
-  echo "---> Restoring build artifacts"
-  mv /tmp/artifacts/* ./
+base_path=${HOME}
+source_path=${base_path}/src
+artifact_path=${base_path}/.m2/repository
+
+# Restore artifacts from the previous build (if they exist).
+if [ "$(ls /opt/s2i/destination/artifacts/ 2>/dev/null)" ]; then
+  echo -n "---> Restoring saved artifacts from prior build..."
+  mv /opt/s2i/destination/artifacts/* $HOME/.
 fi
 
-echo "---> Installing application source to $(pwd)"
-cp -Rf /tmp/src/* ./
+ls -la /tmp
 
-echo "---> Building application from source"
-mvn install -P openshift -Dplatform-target=openshift -DskipTests -Dmaven.repo.local=./m2-repo
- 
+echo "---> Installing application source to ${source_path}"
+cp -Rf /tmp/src/. ${source_path}
+
+pushd ${source_path} > /dev/null
+echo "---> Building application from source in $(pwd)"
+mvn install -P openshift -Dplatform-target=openshift -DskipTests
+echo "---> Build completed"
+popd > /dev/null
