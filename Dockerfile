@@ -8,7 +8,7 @@ USER root
 RUN echo "timeout=200" >> /etc/yum.conf
 # And some proxies does https man in the middle :(
 RUN (cd /etc/yum.repos.d && grep -rl https | xargs sed -i 's/https\:/http\:/g')
-RUN rpm -e iputils-20121221-6.el7_1.1.x86_64 && yum update -y && yum install -y java-1.8.0-openjdk-devel maven && yum clean all -y
+RUN rpm -e iputils-20121221-6.el7_1.1.x86_64 && yum update -y && yum install -y java-1.8.0-openjdk-devel maven nc && yum clean all -y
 
 COPY ./s2i/bin/ /usr/libexec/s2i
 RUN chmod a+x /usr/libexec/s2i/*
