@@ -7,6 +7,8 @@
 #	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
 #
 
-echo "Starting s2i application in $(pwd) on $(date)"
+pushd ${HOME}/src
+echo "---> Starting s2i application in $(pwd) on $(date)"
 exec ./bin/start
-echo "Application stopped $(date)"
+echo "---> Application stopped $(date)"
+popd
