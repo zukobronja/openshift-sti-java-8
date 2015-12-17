@@ -53,7 +53,6 @@ prepare() {
   git config user.email "build@localhost" && git config user.name "builder"
   git add -A && git commit -m "Sample commit"
   popd >/dev/null
-  run_s2i_build
 }
 
 run_test_application() {
@@ -123,6 +122,7 @@ test_connection() {
 # Build the application image twice to ensure the 'save-artifacts' and
 # 'restore-artifacts' scripts are working properly
 prepare
+run_s2i_build
 run_s2i_build
 check_result $?
 
