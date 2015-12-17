@@ -14,16 +14,15 @@ if [ "$1" = "-h" ]; then
 fi
 
 base_path=${HOME}
-source_path=${base_path}/src
+source_path=${base_path}/source
 artifact_path=${base_path}/.m2/repository
 
 # Restore artifacts from the previous build (if they exist).
-if [ "$(ls /opt/s2i/destination/artifacts/ 2>/dev/null)" ]; then
-  echo -n "---> Restoring saved artifacts from prior build..."
-  mv /opt/s2i/destination/artifacts/* $HOME/.
+if [ -d "/tmp/artifacts" ]; then
+  echo "---> Restoring saved artifacts from prior build..."
+  mkdir -p ${HOME}/.m2
+  cp -a /tmp/artifacts/.m2/* ${HOME}/.m2/
 fi
-
-ls -la /tmp
 
 echo "---> Installing application source to ${source_path}"
 cp -Rf /tmp/src/. ${source_path}
