@@ -8,8 +8,6 @@
 #
 
 if [ "$1" = "-h" ]; then
-    # If the 'new-s2i' assemble script is executed with '-h' flag,
-    # print the usage.
     exec /usr/local/s2i/usage
 fi
 
@@ -18,7 +16,7 @@ source_path=${base_path}/source
 artifact_path=${base_path}/.m2/repository
 
 if [[ $OPENSHIFT_BUILD_COMMIT ]]; then
-  	echo "---> Found information about git commit used for build ($OPENSHIFT_BUILD_COMMIT). Storing in ${source_path}/version"
+ 	echo "---> Found information about git commit used for build ($OPENSHIFT_BUILD_COMMIT). Storing in ${source_path}/version"
 	echo "$OPENSHIFT_BUILD_COMMIT" > ${source_path}/version
 else
 	echo "---> Could not find git commit information. (Supported in Origin 3.1)"
