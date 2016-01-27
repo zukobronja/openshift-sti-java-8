@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Remove build artifacts from target folder
+# Added '|| true' to ignore any errors.
+cd target
+find -type d -exec rm -rf {} \; || true

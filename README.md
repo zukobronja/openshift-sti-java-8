@@ -7,10 +7,10 @@ Your application uses Java 8 and builds with Maven.
 Just a short list of what is (and is not) working:
 
 - Check out and build your application
-- Custom start script
-- Re-use local Maven repository to avoid downloading all dependencies every time.
+- Custom start script in ```bin/start``` of your application.
+- Re-use local Maven repository to avoid downloading all dependencies every time. Need to use incremental builds to enable this.
 - (Optional) Clean up after build to reduce image size. Create ```bin/cleanup```
-- TODO? Incremental build through re-store of target folders
+- TODO? Incremental build through re-store of target folders? Will make images larger.
 
 # Build this STI base
 
@@ -29,7 +29,7 @@ To use this in OpenShift it needs to be available in a Docker Repository. To do 
 
 Create whatever start command you need and place it in a bin directory. It is just called ```bin/start```.
 
-**Optional:** To enable smaller image sizes you can include a ```cleanup``` script. This will be called after the build, and can remove unused files to enable smaller
+**Optional:** To enable smaller image sizes you can include a ```cleanup``` script. This will be called after the build, and can remove unused. You can remove sources and temporary build artifacts.
 
 ## Prepare for build
 

@@ -3,9 +3,10 @@
 pushd ${HOME} > /dev/null
 
 # ${HOME}/.m2 is the maven repo dir
-# {$HOME}/source/target is the class files from the previous build
-echo "$(date)" > ./save-artifacts.log
-mkdir -p ./.m2 ./source/target 2> /dev/null
-tar -cf - ./.m2 ./source/target
+# ${HOME}/source/target is the class files from the previous build
+mkdir -p ./.m2 2> /dev/null
+tar -cf - ./.m2
+#mkdir -p ./.m2 ./source/target 2> /dev/null
+#tar -cf - ./.m2 ./source/target
 
 popd >/dev/null

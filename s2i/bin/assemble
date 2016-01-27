@@ -37,5 +37,12 @@ cp -Rf /tmp/src/. ${source_path}
 pushd ${source_path} > /dev/null
 echo "---> Building application from source in $(pwd)"
 mvn install -P openshift -Dplatform-target=openshift -DskipTests
+
+if [[ -e ./bin/cleanup ]]; then
+	echo "---> Running application provided cleanup"
+	./bin/cleanup
+fi
+
 echo "---> Build completed"
+
 popd > /dev/null
