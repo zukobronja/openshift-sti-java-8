@@ -1,6 +1,16 @@
 # Requirements
 
-Your application uses Java 8 and builds with maven.
+Your application uses Java 8 and builds with Maven.
+
+# Features
+
+Just a short list of what is (and is not) working:
+
+- Check out and build your application
+- Custom start script
+- Re-use local Maven repository to avoid downloading all dependencies every time.
+- (Optional) Clean up after build to reduce image size. Create ```bin/cleanup```
+- TODO? Incremental build through re-store of target folders
 
 # Build this STI base
 
@@ -15,20 +25,23 @@ To use this in OpenShift it needs to be available in a Docker Repository. To do 
     docker tag openshift-sti-java-8:latest <myrepo_with_port>/openshift-sti-java-8
     docker push <myrepo_with_port>/openshift-sti-java-8
 
-## Create start command
+## Create scripts
 
-Create whatever start command you need and place it in your root directory. It is just called ```bin/start```.
+Create whatever start command you need and place it in a bin directory. It is just called ```bin/start```.
+
+**Optional:** To enable smaller image sizes you can include a ```cleanup``` script. This will be called after the build, and can remove unused files to enable smaller
 
 ## Prepare for build
 
 If your application just needs a plain mvn build you don't really need to do anything. Default is ```mvn install```. MAVEN_OPTS is set to:
 
-- Disable tests
-- Activate profile "openshift"
-- Variable platform-target set to "openshift"
-- Maven repo redirected to ```./m2-repo``` . Lets us re-use when re-building.
+- Disable tests (-DskipTests=true)
+- Activate profile "openshift" (-P openshift)
+- Variable platform-target set to "openshift" (-Dplatform-target=openshift)
 
 ## Bootstrap your application on OpenShift
+
+Move into the directory of your application (where you have pom.xml):
 
     oc new-app <myrepo_with_port>/openshift-sti-java-8:latest --strategy=source .
 
