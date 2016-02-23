@@ -36,7 +36,8 @@ cp -Rf /tmp/src/. ${source_path}
 
 pushd ${source_path} > /dev/null
 echo "---> Building application from source in $(pwd)"
-mvn install -P openshift -Dplatform-target=openshift -DskipTests
+# Running with batch mode and Openshift profile, skipping tests
+mvn install -B -P openshift -Dplatform-target=openshift -DskipTests
 
 if [[ -e ./bin/cleanup ]]; then
 	echo "---> Running application provided cleanup"
